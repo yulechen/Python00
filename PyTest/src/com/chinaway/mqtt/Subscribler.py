@@ -57,6 +57,7 @@ def on_log(mqttc, obj, level, string):
 # but note that the client id must be unique on the broker. Leaving the client
 # id parameter empty will generate a random id for you.
 mqttc = mqtt.Client()
+mqttc.username_pw_set('radmin', 'radmin')
 mqttc.on_message = on_message
 mqttc.on_connect = on_connect
 mqttc.on_publish = on_publish
