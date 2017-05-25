@@ -6,6 +6,17 @@ Created on 2017年5月3日
 '''
 from demo.clazz.Parent import Parent
 
+DEFAULT_ERROR_MESSAGE = '''\
+<head>
+<title>Error response</title>
+</head>
+<body>
+<h1>Error response</h1>
+<p>Error code %(code)d.
+<p>Message: %(message)s.
+<p>Error code explanation: %(code)s = %(explain)s.
+</body>
+'''
 
 class Sub(Parent):
     '''
@@ -18,5 +29,4 @@ class Sub(Parent):
         print 'sub b '    
         
 if __name__ == '__main__':
-    s = Sub()
-    s.mainM()
+    print DEFAULT_ERROR_MESSAGE
