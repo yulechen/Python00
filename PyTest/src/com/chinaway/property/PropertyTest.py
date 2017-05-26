@@ -14,7 +14,8 @@ class Person(object):
         """Constructor"""
         self.first_name = first_name
         self.last_name = last_name
- 
+        self.__log = None
+        self._log = None
     #----------------------------------------------------------------------
     @property
     def full_name(self):
@@ -40,6 +41,10 @@ def f():
         
 person = Person("Mike", "Driscoll")
 print person.full_name
+if person._log is not None:  # private method
+    person._log()
+if person.__log is not None:  # private method
+    person.__log()
 person.m()
 person.m = f
 person.m()
