@@ -19,9 +19,13 @@ def readFile2(fileName):
     with open(fileName, 'r') as f:
         while True:
             line = f.read(10)
+            bl = bytearray(line)
+            for b in bl:
+                print hex(b)
+            # print line
+            break
             if not line:
-                break;
-            print line
+                break
             
 
 def readBFile(fileName):
@@ -37,4 +41,4 @@ fileName = 'D:/GitReps/Github\Python00/PyTest/src/test1.pyc'  # 二进制文件
 
 # readFile(fileName)
 # readFile2(fileName)
-readBFile(fileName)
+readFile2(fileName)
