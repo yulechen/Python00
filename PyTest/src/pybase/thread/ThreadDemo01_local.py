@@ -17,8 +17,15 @@ args/kwargs: 方法的参数
 
 import threading
 
-def func():
-    print 'hello timer!'
+local = threading.local()
+local.tname = 'main'
  
-timer = threading.Timer(5, func)
-timer.start()
+def func():
+    local.tname = 'notmain'
+    print local.tname
+ 
+t1 = threading.Thread(target=func)
+t1.start()
+t1.join()
+ 
+print local.tname

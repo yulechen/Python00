@@ -6,41 +6,19 @@ Created on 2017年5月26日
 @author: Huoyunren
 '''
 '''
-Event（事件）是最简单的线程通信机制之一：一个线程通知事件，其他线程等待事件。
-Event内置了一个初始为False的标志，当调用set()时设为True，调用clear()时重置为 False。wait()将阻塞线程至等待阻塞状态。
-
-Event其实就是一个简化版的 Condition。Event没有锁，无法使线程进入同步阻塞状态。
+Timer（定时器）是Thread的派生类，用于在指定时间后调用一个方法。
 
 构造方法： 
-Event()
-
-实例方法： 
-isSet(): 当内置标志为True时返回True。 
-set(): 将标志设为True，并通知所有处于等待阻塞状态的线程恢复运行状态。 
-clear(): 将标志设为False。 
-wait([timeout]): 如果标志为True将立即返回，否则阻塞线程至等待阻塞状态，等待其他线程调用set()。
+Timer(interval, function, args=[], kwargs={}) 
+interval: 指定的时间 
+function: 要执行的方法 
+args/kwargs: 方法的参数
 '''
 
 import threading
-import time
 
-event = threading.Event()
- 
 def func():
-    # 等待事件，进入等待阻塞状态
-    print '%s wait for event...' % threading.currentThread().getName()
-    event.wait()
-    
-    # 收到事件后进入运行状态
-    print '%s recv event.' % threading.currentThread().getName()
+    print 'hello timer!'
  
-t1 = threading.Thread(target=func)
-t2 = threading.Thread(target=func)
-t1.start()
-t2.start()
- 
-time.sleep(2)
- 
-# 发送事件通知
-print 'MainThread set event.'
-event.set()
+timer = threading.Timer(5, func)
+timer.start()

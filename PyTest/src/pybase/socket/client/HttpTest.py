@@ -12,8 +12,9 @@ from io import BytesIO
 # requset method
 r = requests.get('https://github.com/timeline.json')
 # print r.text 文本响应
-print r.content  # 二进制响应内容
-print r.raw
+result = bytearray(r.content);
+print bytearray(r.content)  # 二进制响应内容
+# print repr(r.raw)
 # requests.post("http://httpbin.org/post")
 # requests.put("http://httpbin.org/put")
 # requests.delete("http://httpbin.org/delete")
