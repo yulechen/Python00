@@ -22,6 +22,12 @@ def decodeIpHeader(packet):
         mapRet["srcaddr"] = "%d.%d.%d.%d" % (int(ord(packet[12])), int(ord(packet[13])), int(ord(packet[14])), int(ord(packet[15])))
         mapRet["dstaddr"] = "%d.%d.%d.%d" % (int(ord(packet[16])), int(ord(packet[17])), int(ord(packet[18])), int(ord(packet[19])))
         return mapRet 
+def showHexPacket(packet):
+    hexStr = ''
+    for b in packet:
+        hexStr = hexStr + (hex(int(ord(b))))[2:] + ' '
+    print hexStr       
+               
 proto = socket.getprotobyname('tcp')  # only tcp
 sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, proto)
 
@@ -30,7 +36,7 @@ while True:
         if len(packet) == 0:
                 sock.close()
         else:
-                # print str(packet)
+                showHexPacket(packet)
                 mapIpTmp = decodeIpHeader(packet)
                 for k, v in mapIpTmp.items():
                         print k, "\t:\t", v

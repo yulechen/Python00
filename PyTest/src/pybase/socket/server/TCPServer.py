@@ -7,6 +7,7 @@ Created on 2017年6月6日
 '''
 import socket
 from pybase.socket.server.BaseServer import BaseServer
+from pybase.socket.server.MyTCPHandler import MyTCPHandler
 class TCPServer(BaseServer):
 
     """Base class for various socket-based server classes.
@@ -134,7 +135,7 @@ class TCPServer(BaseServer):
 
 
 if __name__ == '__main__':
-    tcpserver = TCPServer(server_address=('localhost', 2222), RequestHandlerClass=None)
+    tcpserver = TCPServer(server_address=('localhost', 2222), RequestHandlerClass=MyTCPHandler)
     tcpserver.serve_forever()
     
     
