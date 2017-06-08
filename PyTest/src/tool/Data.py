@@ -5,6 +5,7 @@ Created on 2017年6月6日
 
 @author: Huoyunren
 '''
+
 print chr(65)
 print ord('a')
 print unichr(12345)
