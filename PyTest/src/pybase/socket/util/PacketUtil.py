@@ -9,7 +9,7 @@ import string
 
 class PacketUtil:
     @staticmethod
-    def showHexRaw(data):
+    def show_hex_raw(data):
         hexStr = ''
         if isinstance(data, str):
             for c in data:

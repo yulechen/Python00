@@ -45,7 +45,11 @@ def show_tcp_by_order(parse_header_dict):
     return parse_header_desc + "}"
       
 def parse_packet(packet):
-   
+    '''
+    @param packet:  bytearray
+    @return: dict keys=[header_parse,header,raw,body]
+   '''
+    
     tcp_header_parse = {}
     tcp_header_parse[TCP_HEADER_DESC[0]] = struct.unpack('>H', bytearray([packet[0], packet[1]]))[0]
     tcp_header_parse[TCP_HEADER_DESC[1]] = struct.unpack('>H', bytearray([packet[2], packet[3]]))[0]
@@ -59,8 +63,8 @@ def parse_packet(packet):
     tcp_header_parse[TCP_HEADER_DESC[8]] = struct.unpack('>H', bytearray([packet[16], packet[17]]))[0]
     tcp_header_parse[TCP_HEADER_DESC[9]] = struct.unpack('>H', bytearray([packet[18], packet[19]]))[0]
     tcp = {'header_parse':tcp_header_parse}
-    tcp['body'] = packet[20:]
     tcp['header'] = packet[0:20]
+    tcp['body'] = packet[20:]
     tcp['raw'] = packet
     return tcp;
 
@@ -69,8 +73,8 @@ if __name__ == '__main__':
     packet = PacketUtil.str2bytes(packet_body_str)
     tcp_data = parse_packet(packet)  
     print show_tcp_by_order(tcp_data['header_parse'])
-    print PacketUtil.showHexRaw(tcp_data['body'])
-    print PacketUtil.showHexRaw(tcp_data['header'])
-    print PacketUtil.showHexRaw(tcp_data['raw'])
+    print PacketUtil.show_hex_raw(tcp_data['body'])
+    print PacketUtil.show_hex_raw(tcp_data['header'])
+    print PacketUtil.show_hex_raw(tcp_data['raw'])
        
     

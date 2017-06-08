@@ -106,6 +106,6 @@ if __name__ == '__main__':
         ip_header_parse = parse_packet['header_parse']
         print '=========header========'
         print show_ip_by_order(ip_header_parse)
-        print  PacketUtil.showHexRaw(parse_packet['header'])   
-        print  PacketUtil.showHexRaw(parse_packet['body'])
+        print  PacketUtil.show_hex_raw(parse_packet['header'])   
+        print  PacketUtil.show_hex_raw(parse_packet['body'])
            
