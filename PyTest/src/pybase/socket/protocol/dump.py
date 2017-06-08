@@ -158,12 +158,12 @@ def tcp_parse(packet):
 def start_dump():
     sock = None
     if platform.system() == 'Windows':
-        # 获取所有IP 数据
-        sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.htons(0x0800))
+        # 获取所有IP 数据tcp/udp/icmp
+        sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_IP)
         sock.bind((socket.gethostname(), 0))
         # Include IP headers
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
-        # receive all packages
+        # receive all packages，开启网卡混杂模式
         sock.ioctl(socket.SIO_RCVALL, socket.RCVALL_ON)
         while True:
             packet = sock.recvfrom(65535)[0]
