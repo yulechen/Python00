@@ -9,7 +9,9 @@ import socket
 import struct
 import platform
 
-ETH_DESC = ('dest_mac', 'src_mac', 'type', 'crc')
+ETH_DESC = ('dest_mac', 'src_mac', 'type'
+            # , 'crc'
+            )
 
 IP_DESC = ['version', 'header_length', 'service_type', 'packet_length', 'packet_split_flag',
          'packet_fragment_flag', 'packet_fragment_offset', 'TTL', 'protocol', 'header_crc'
@@ -101,8 +103,8 @@ def data_link_ethernet_parser(frame_bytes):
     eth_parse_header[ETH_DESC[1]] = get_eth_mac(frame_bytes[6:12])
     type_key = struct.unpack('>H', bytes_str([frame_bytes[12], frame_bytes[13]]))[0]
     eth_parse_header[ETH_DESC[2]] = get_eth_type(type_key)
-    eth['body'] = frame_bytes[14:-4]
-    eth_parse_header[ETH_DESC[3]] = struct.unpack('>L', bytes_str([frame_bytes[-4], frame_bytes[-3], frame_bytes[-2], frame_bytes[-1]]))[0]
+    eth['body'] = frame_bytes[14:]
+    # eth_parse_header[ETH_DESC[3]] = struct.unpack('>L', bytes_str([frame_bytes[-4], frame_bytes[-3], frame_bytes[-2], frame_bytes[-1]]))[0]
     eth['header_parse'] = eth_parse_header
     return eth;
     
@@ -239,7 +241,7 @@ def start_dump():
             if len(packet) == 0:
                 sock.close()
                 break
-            print show_hex_raw(packet)
+            # print show_hex_raw(packet)
             parse(bytearray(packet))
 
 if __name__ == '__main__':
