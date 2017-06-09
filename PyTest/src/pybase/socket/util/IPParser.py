@@ -102,7 +102,7 @@ def parse_packet(packet):
 if __name__ == '__main__':
         packet_header_str = '45 00 00 5c 0d f8 40 00 7d 06 92 a6 ac 16 03 ca ac 10 01 0d'
         packet_body_str = 'ed 56 0 16 a5 dd b3 de 86 36 57 37 50 18 3f 66 41 73 0 0 9a 3f 28 80 11 3a 2d 73 50 f1 f3 9e 3a ed 7 a8 25 a0 73 51 5f bd cf a3 b9 59 1f 19 e2 5b 58 42 87 6a 67 98 88 78 54 d6 83 c8 a6 24 6b 1b 65 e5 ff af 82 44'
-        parse_packet = parse_packet(packet_header_str + ' ' + packet_body_str)
+        parse_packet = parse_packet('45 00 00 28 7F DF 40 00 7D 06 20 F3 AC 16 03 CA AC 10 01 0D ED 56 00 16 A5 E3 90 EE 86 40 95 07 50 10 3E E7')
         ip_header_parse = parse_packet['header_parse']
         print '=========header========'
         print show_ip_by_order(ip_header_parse)

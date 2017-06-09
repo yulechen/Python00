@@ -49,27 +49,31 @@ def parse_packet(packet):
     @param packet:  bytearray
     @return: dict keys=[header_parse,header,raw,body]
    '''
-    
-    tcp_header_parse = {}
-    tcp_header_parse[TCP_HEADER_DESC[0]] = struct.unpack('>H', bytearray([packet[0], packet[1]]))[0]
-    tcp_header_parse[TCP_HEADER_DESC[1]] = struct.unpack('>H', bytearray([packet[2], packet[3]]))[0]
-    tcp_header_parse[TCP_HEADER_DESC[2]] = struct.unpack('>L', bytearray([packet[4], packet[5], packet[6], packet[7]]))[0]
-    tcp_header_parse[TCP_HEADER_DESC[3]] = struct.unpack('>L', bytearray([packet[8], packet[9], packet[10], packet[11]]))[0]
-    header_length = struct.unpack('>H', bytearray([packet[12], packet[13]]))[0]
-    tcp_header_parse[TCP_HEADER_DESC[4]] = (header_length >> 12) * 4 
-    tcp_header_parse[TCP_HEADER_DESC[5]] = (header_length & 0x0fc0) >> 6
-    tcp_header_parse[TCP_HEADER_DESC[6]] = get_flag(header_length & 0x3f)
-    tcp_header_parse[TCP_HEADER_DESC[7]] = struct.unpack('>H', bytearray([packet[14], packet[15]]))[0]
-    tcp_header_parse[TCP_HEADER_DESC[8]] = struct.unpack('>H', bytearray([packet[16], packet[17]]))[0]
-    tcp_header_parse[TCP_HEADER_DESC[9]] = struct.unpack('>H', bytearray([packet[18], packet[19]]))[0]
-    tcp = {'header_parse':tcp_header_parse}
-    tcp['header'] = packet[0:20]
-    tcp['body'] = packet[20:]
-    tcp['raw'] = packet
-    return tcp;
+    try:
+        print len(packet)
+        tcp_header_parse = {}
+        tcp_header_parse[TCP_HEADER_DESC[0]] = struct.unpack('>H', bytearray([packet[0], packet[1]]))[0]
+        tcp_header_parse[TCP_HEADER_DESC[1]] = struct.unpack('>H', bytearray([packet[2], packet[3]]))[0]
+        tcp_header_parse[TCP_HEADER_DESC[2]] = struct.unpack('>L', bytearray([packet[4], packet[5], packet[6], packet[7]]))[0]
+        tcp_header_parse[TCP_HEADER_DESC[3]] = struct.unpack('>L', bytearray([packet[8], packet[9], packet[10], packet[11]]))[0]
+        header_length = struct.unpack('>H', bytearray([packet[12], packet[13]]))[0]
+        tcp_header_parse[TCP_HEADER_DESC[4]] = (header_length >> 12) * 4 
+        tcp_header_parse[TCP_HEADER_DESC[5]] = (header_length & 0x0fc0) >> 6
+        tcp_header_parse[TCP_HEADER_DESC[6]] = get_flag(header_length & 0x3f)
+        tcp_header_parse[TCP_HEADER_DESC[7]] = struct.unpack('>H', bytearray([packet[14], packet[15]]))[0]
+        tcp_header_parse[TCP_HEADER_DESC[8]] = struct.unpack('>H', bytearray([packet[16], packet[17]]))[0]
+        tcp_header_parse[TCP_HEADER_DESC[9]] = struct.unpack('>H', bytearray([packet[18], packet[19]]))[0]
+        tcp = {'header_parse':tcp_header_parse}
+        tcp['header'] = packet[0:20]
+        tcp['body'] = packet[20:]
+        tcp['raw'] = packet
+        return tcp
+    except IndexError as  e:
+        print tcp_header_parse
+        print e   
 
 if __name__ == '__main__':
-    packet_body_str = 'ed 56 0 16 a5 dd b3 de 86 36 57 37 50 18 3f 66 41 73 0 0 9a 3f 28 80 11 3a 2d 73 50 f1 f3 9e 3a ed 7 a8 25 a0 73 51 5f bd cf a3 b9 59 1f 19 e2 5b 58 42 87 6a 67 98 88 78 54 d6 83 c8 a6 24 6b 1b 65 e5 ff af 82 44'
+    packet_body_str = 'ED 56 00 16 A5 E3 90 EE 86 40 95 07 50 10 3E E7'
     packet = PacketUtil.str2bytes(packet_body_str)
     tcp_data = parse_packet(packet)  
     print show_tcp_by_order(tcp_data['header_parse'])

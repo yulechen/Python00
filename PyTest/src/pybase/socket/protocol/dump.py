@@ -9,6 +9,8 @@ import socket
 import struct
 import platform
 
+ETH_DESC = ('dest_mac', 'src_mac', 'type', 'crc')
+
 IP_DESC = ['version', 'header_length', 'service_type', 'packet_length', 'packet_split_flag',
          'packet_fragment_flag', 'packet_fragment_offset', 'TTL', 'protocol', 'header_crc'
          , 'src_ip', 'dest_ip'
@@ -55,6 +57,27 @@ def bytes_str(list_v):
         for c in list_v:
             str_v = str_v + chr(c)
         return  str_v
+    
+def get_hex_format(number):
+    if number < 16:
+        return '0' + (hex(number)[2:]).upper()
+    else:
+        return (hex(number)[2:]).upper()
+    
+def get_eth_mac(mac_bytes):
+    return "%s-%s-%s-%s-%s-%s" % (get_hex_format(mac_bytes[0]), get_hex_format(mac_bytes[1]),
+                            get_hex_format(mac_bytes[2]), get_hex_format(mac_bytes[3]),
+                            get_hex_format(mac_bytes[4]), get_hex_format(mac_bytes[5]))
+
+def get_eth_type(key):
+    type_map = {
+        0x0800:'IP',
+        0x0806:'ARP',
+        0x8035:'RARP'
+        };
+    if type_map.has_key(key):
+        return type_map[key]
+    return key
 
 def get_protocol(key):
     protocol_map = {
@@ -70,6 +93,19 @@ def get_protocol(key):
 
 def get_ip(bts):
     return "%d.%d.%d.%d" % (bts[0], bts[1], bts[2], bts[3])
+
+def data_link_ethernet_parser(frame_bytes):
+    eth = {}
+    eth_parse_header = {};
+    eth_parse_header[ETH_DESC[0]] = get_eth_mac(frame_bytes[0:6])
+    eth_parse_header[ETH_DESC[1]] = get_eth_mac(frame_bytes[6:12])
+    type_key = struct.unpack('>H', bytes_str([frame_bytes[12], frame_bytes[13]]))[0]
+    eth_parse_header[ETH_DESC[2]] = get_eth_type(type_key)
+    eth['body'] = frame_bytes[14:-4]
+    eth_parse_header[ETH_DESC[3]] = struct.unpack('>L', bytes_str([frame_bytes[-4], frame_bytes[-3], frame_bytes[-2], frame_bytes[-1]]))[0]
+    eth['header_parse'] = eth_parse_header
+    return eth;
+    
 
 def ip_parser(packet):
     c = packet
@@ -154,7 +190,23 @@ def tcp_parse(packet):
     tcp['raw'] = packet
     return tcp;   
     
-    
+def parse(packet):
+    try:
+        header_parse_key = 'header_parse'
+        eth_dict = data_link_ethernet_parser(packet)  
+        eth_header_dict = eth_dict[header_parse_key];
+        print 'NTH>' + show_dict_by_order(dict_=eth_header_dict, desc=ETH_DESC)
+        if eth_header_dict['type'] == 'IP':
+            ip_dict = ip_parser(eth_dict['body'])
+            ip_header_dict = ip_dict[header_parse_key] 
+            print '-->IP' + show_dict_by_order(dict_=ip_header_dict, desc=IP_DESC)
+            if ip_header_dict['protocol'] == 'TCP':  
+                tcp_dict = tcp_parse(ip_dict['body'])
+                tcp_header_dict = tcp_dict['header_parse']
+                print '  -->TCP' + show_dict_by_order(dict_=tcp_header_dict, desc=TCP_HEADER_DESC)
+    except IndexError:  
+        print '[TCP_RAW] ' + show_hex_raw(ip_dict['body'])
+       
 def start_dump():
     sock = None
     if platform.system() == 'Windows':
@@ -188,6 +240,8 @@ def start_dump():
                 sock.close()
                 break
             print show_hex_raw(packet)
+            parse(bytearray(packet))
 
 if __name__ == '__main__':
-    start_dump()
+     start_dump()
+   
