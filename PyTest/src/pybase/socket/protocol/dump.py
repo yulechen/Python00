@@ -214,6 +214,7 @@ def parse(packet):
 def start_dump():
     sock = None
     if platform.system() == 'Windows':
+        
         # 获取所有IP 数据tcp/udp/icmp
         host = socket.gethostbyname(socket.gethostname())
         sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_IP)
@@ -222,20 +223,23 @@ def start_dump():
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
         # receive all packages，开启网卡混杂模式
         sock.ioctl(socket.SIO_RCVALL, socket.RCVALL_ON)
-        while True:
-            packet = sock.recvfrom(65535)[0]
-            if len(packet) == 0:
-                sock.close()
-                break
-            ip_dict = ip_parser(bytearray(packet))
-            ip_header_dict = ip_dict['header_parse'] 
-            # print show_dict_by_order(dict_=ip_header_dict, desc=IP_DESC)
-            if ip_header_dict['protocol'] == 'TCP':  
-                tcp_dict = tcp_parse(ip_dict['body'])
-                tcp_header_dict = tcp_dict['header_parse']
-                # print '   tcp-----' + show_dict_by_order(dict_=tcp_header_dict, desc=TCP_HEADER_DESC)
-                if  ip_header_dict['dest_ip'] == '172.16.1.16' or ip_header_dict['src_ip'] == '172.16.1.16':
-                    print show_dict_by_order(dict_=ip_header_dict, desc=IP_DESC)
+        try:
+            while True:
+                packet = sock.recvfrom(65535)[0]
+                if len(packet) == 0:
+                    sock.close()
+                    break
+                ip_dict = ip_parser(bytearray(packet))
+                ip_header_dict = ip_dict['header_parse'] 
+                # print show_dict_by_order(dict_=ip_header_dict, desc=IP_DESC)
+                if ip_header_dict['protocol'] == 'TCP':  
+                    tcp_dict = tcp_parse(ip_dict['body'])
+                    tcp_header_dict = tcp_dict['header_parse']
+                    # print '   tcp-----' + show_dict_by_order(dict_=tcp_header_dict, desc=TCP_HEADER_DESC)
+                    # if  ip_header_dict['dest_ip'] == '172.22.3.202' or ip_header_dict['src_ip'] == '172.16.1.16':
+                print show_dict_by_order(dict_=ip_header_dict, desc=['src_ip', 'dest_ip'])
+        except KeyboardInterrupt:
+            sock.ioctl(socket.SIO_RCVALL, socket.RCVALL_OFF)            
                     # print '   tcp-----' + show_dict_by_order(dict_=tcp_header_dict, desc=TCP_HEADER_DESC)
                     # print len(tcp_dict['raw']), show_hex_raw(tcp_dict['raw'])
     else:
