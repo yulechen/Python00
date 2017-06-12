@@ -215,8 +215,9 @@ def start_dump():
     sock = None
     if platform.system() == 'Windows':
         # 获取所有IP 数据tcp/udp/icmp
+        host = socket.gethostbyname(socket.gethostname())
         sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_IP)
-        sock.bind((socket.gethostname(), 0))
+        sock.bind((host, 0))
         # Include IP headers
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
         # receive all packages，开启网卡混杂模式
@@ -233,10 +234,10 @@ def start_dump():
                 tcp_dict = tcp_parse(ip_dict['body'])
                 tcp_header_dict = tcp_dict['header_parse']
                 # print '   tcp-----' + show_dict_by_order(dict_=tcp_header_dict, desc=TCP_HEADER_DESC)
-                if  ip_header_dict['dest_ip'] == '172.16.1.16' and tcp_header_dict['dest_port'] == 8080:
-                    # print show_dict_by_order(dict_=ip_header_dict, desc=IP_DESC)
-                    print '   tcp-----' + show_dict_by_order(dict_=tcp_header_dict, desc=TCP_HEADER_DESC)
-                    print len(tcp_dict['raw']), show_hex_raw(tcp_dict['raw'])
+                if  ip_header_dict['dest_ip'] == '172.16.1.16' or ip_header_dict['src_ip'] == '172.16.1.16':
+                    print show_dict_by_order(dict_=ip_header_dict, desc=IP_DESC)
+                    # print '   tcp-----' + show_dict_by_order(dict_=tcp_header_dict, desc=TCP_HEADER_DESC)
+                    # print len(tcp_dict['raw']), show_hex_raw(tcp_dict['raw'])
     else:
         # 获取IP 层数据
         # sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
