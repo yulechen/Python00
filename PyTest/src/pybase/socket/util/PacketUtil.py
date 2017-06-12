@@ -28,7 +28,7 @@ class PacketUtil:
     @staticmethod
     def convertBytes2String(list_v):
         str_v = ''
-        for c in list:
+        for c in list_v:
             str_v = str_v + chr(c)
         return  str_v
     
@@ -42,4 +42,4 @@ class PacketUtil:
         sendMsg = []
         for temp_cwd in spt:
             sendMsg.append(string.atoi(temp_cwd, 16))
-        return  bytearray(sendMsg) 
+        return  bytearray(sendMsg)

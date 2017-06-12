@@ -155,19 +155,20 @@ def ip_parser(packet):
     IP['header_parse'] = ip_header
     IP['body'] = body = c[20:]
     IP['header'] = c[0:20]
+    IP['raw'] = c
     return IP
 
 def get_tcp_flag(flag):
     flag_str = ''
-    if flag >> 5 == 1 :
+    if (flag >> 5) & 0x01 == 1 :
         flag_str = flag_str + 'URG' 
-    if flag >> 4 == 1 :
+    if (flag >> 4) & 0x01 == 1 :
         flag_str = flag_str + 'ACK' 
-    if flag >> 3 == 1 :
+    if (flag >> 3) & 0x01 == 1 :
         flag_str = flag_str + 'PSH' 
-    if flag >> 2 == 1 :
+    if (flag >> 2) & 0x01 == 1 :
         flag_str = flag_str + 'RST'     
-    if flag >> 1 == 1 :
+    if (flag >> 1) & 0x01 == 1 :
         flag_str = flag_str + 'SYN'     
     if flag & 0x01 == 1 :
         flag_str = flag_str + 'FIN'      
@@ -192,6 +193,7 @@ def tcp_parse(packet):
     tcp['raw'] = packet
     return tcp;   
     
+       
 def parse(packet):
     try:
         header_parse_key = 'header_parse'
@@ -226,11 +228,15 @@ def start_dump():
                 break
             ip_dict = ip_parser(bytearray(packet))
             ip_header_dict = ip_dict['header_parse'] 
-            print show_dict_by_order(dict_=ip_header_dict, desc=IP_DESC)
+            # print show_dict_by_order(dict_=ip_header_dict, desc=IP_DESC)
             if ip_header_dict['protocol'] == 'TCP':  
                 tcp_dict = tcp_parse(ip_dict['body'])
                 tcp_header_dict = tcp_dict['header_parse']
-                print '   tcp-----' + show_dict_by_order(dict_=tcp_header_dict, desc=TCP_HEADER_DESC)
+                # print '   tcp-----' + show_dict_by_order(dict_=tcp_header_dict, desc=TCP_HEADER_DESC)
+                if  ip_header_dict['dest_ip'] == '172.16.1.16' and tcp_header_dict['dest_port'] == 8080:
+                    # print show_dict_by_order(dict_=ip_header_dict, desc=IP_DESC)
+                    print '   tcp-----' + show_dict_by_order(dict_=tcp_header_dict, desc=TCP_HEADER_DESC)
+                    print len(tcp_dict['raw']), show_hex_raw(tcp_dict['raw'])
     else:
         # 获取IP 层数据
         # sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
