@@ -24,6 +24,7 @@ print repr(bytearray(10)), repr(bytearray([1, 2]))
 # 字符
 print repr(bytearray(u'你好', 'gbk')), repr(bytearray('你好')), repr(bytearray('a'))
 
+print str(bytearray('你好')), str(bytearray(u'你好', 'gbk'))
 
 # 0-255 ascii
-print chr(97), ord('a'), ord(u'你'), unichr(20320)
+print chr(97), ord('a'), ord(u'你'), unichr(20320), hex(12)
