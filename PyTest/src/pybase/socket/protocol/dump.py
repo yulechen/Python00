@@ -32,6 +32,11 @@ TCP_HEADER_DESC = (
                  # ‘option’ 长度可变，最长可达40字节
                  )
 
+HEADER_KEY = 'header'
+BODY_KEY = 'body'
+RAW_KEY = 'raw'
+HEADER_PARSE_KEY = 'header-parse'
+
 def show_hex_raw(data):
         hex_str = ''
         if isinstance(data, str):
@@ -103,9 +108,11 @@ def data_link_ethernet_parser(frame_bytes):
     eth_parse_header[ETH_DESC[1]] = get_eth_mac(frame_bytes[6:12])
     type_key = struct.unpack('>H', bytes_str([frame_bytes[12], frame_bytes[13]]))[0]
     eth_parse_header[ETH_DESC[2]] = get_eth_type(type_key)
-    eth['body'] = frame_bytes[14:]
+    eth[HEADER_KEY] = frame_bytes[0:14]
+    eth[BODY_KEY] = frame_bytes[14:]
     # eth_parse_header[ETH_DESC[3]] = struct.unpack('>L', bytes_str([frame_bytes[-4], frame_bytes[-3], frame_bytes[-2], frame_bytes[-1]]))[0]
-    eth['header_parse'] = eth_parse_header
+    eth[HEADER_PARSE_KEY] = eth_parse_header
+    eth[RAW_KEY] = frame_bytes
     return eth;
     
 
@@ -113,22 +120,22 @@ def ip_parser(packet):
     c = packet
     ip_header = {}
     # 第一个字节高4 位 为版本号
-    ip_header['version'] = (c[0] & 0xf0) >> 4  
+    ip_header[IP_DESC[0]] = (c[0] & 0xf0) >> 4  
     # 第一个字节 低4位 为首部长度 单位为 4字节 ，首部长度 ，如果不为 20 说明首部有可变字段
     # c[0]--c[19] 为IP 头部
-    ip_header['header_length'] = (c[0] & 0x0f) * 4  
+    ip_header[IP_DESC[1]] = (c[0] & 0x0f) * 4  
      # print 'total_packet_header_length_calc:%d' % ip_header['header_length']
-    ip_header['service_type'] = c[1]
+    ip_header[IP_DESC[2]] = c[1]
      
      # 一个 IP 数据包长度 最大 两个字节 65535 ，
      # 一个 以太网数据包 63 --1440，一个IP数据包可能分成多个
      # 以太网包发送     
-    ip_header['packet_length'] = struct.unpack('>H', bytes_str([c[2], c[3]]))[0]
+    ip_header[IP_DESC[3]] = struct.unpack('>H', bytes_str([c[2], c[3]]))[0]
      # print 'total_packet_length_calc:%d' % ip_header['packet_length']
      
      # 相同的标识字段的值使分片后的各数据报片最后能正确地重装成为原来的数据报.
      # 是否为同一个IP 数据报判断
-    ip_header['packet_split_flag'] = struct.unpack('>H', bytes_str([c[4], c[5]]))[0]
+    ip_header[IP_DESC[4]] = struct.unpack('>H', bytes_str([c[4], c[5]]))[0]
      # 3bit ?   DF MF
      #      n/a  1  1
      # 只有当 DF =0 才能分片，MF=1 表示还有分片数据 ，MF=0 表示是最后一个分片数据
@@ -137,25 +144,25 @@ def ip_parser(packet):
     packet_fragment_flag = False
     if c[6] >> 6 == 0 :
          packet_fragment_flag = True
-    ip_header['packet_fragment_flag'] = packet_fragment_flag 
+    ip_header[IP_DESC[5]] = packet_fragment_flag 
      # 取低13 位 ，单位为 8 字节
-    ip_header['packet_fragment_offset'] = (struct.unpack('>H', bytes_str([c[6], c[7]]))[0] & 0x1fff) * 8
+    ip_header[IP_DESC[6]] = (struct.unpack('>H', bytes_str([c[6], c[7]]))[0] & 0x1fff) * 8
      # 单位秒
-    ip_header['TTL'] = c[8]
+    ip_header[IP_DESC[7]] = c[8]
      
      # 运输的协议
-    ip_header['protocol'] = get_protocol(c[9])
+    ip_header[IP_DESC[8]] = get_protocol(c[9])
      # header_crc 首部校验和,每经过一个路由器该值会发生变化
-    ip_header['header_crc'] = struct.unpack('>H', bytes_str([c[10], c[11]]))[0]
+    ip_header[IP_DESC[9]] = struct.unpack('>H', bytes_str([c[10], c[11]]))[0]
     
-    ip_header['src_ip'] = get_ip([c[12], c[13], c[14], c[15]])
+    ip_header[IP_DESC[10]] = get_ip([c[12], c[13], c[14], c[15]])
      # 20 字节头部解析完成
-    ip_header['dest_ip'] = get_ip([c[16], c[17], c[18], c[19]])
+    ip_header[IP_DESC[11]] = get_ip([c[16], c[17], c[18], c[19]])
     IP = {}
-    IP['header_parse'] = ip_header
-    IP['body'] = body = c[20:]
-    IP['header'] = c[0:20]
-    IP['raw'] = c
+    IP[HEADER_PARSE_KEY] = ip_header
+    IP[BODY_KEY] = body = c[20:]
+    IP[HEADER_KEY] = c[0:20]
+    IP[RAW_KEY] = c
     return IP
 
 def get_tcp_flag(flag):
@@ -187,10 +194,10 @@ def tcp_parse(packet):
     tcp_header_parse[TCP_HEADER_DESC[7]] = struct.unpack('>H', bytes_str([packet[14], packet[15]]))[0]
     tcp_header_parse[TCP_HEADER_DESC[8]] = struct.unpack('>H', bytes_str([packet[16], packet[17]]))[0]
     tcp_header_parse[TCP_HEADER_DESC[9]] = struct.unpack('>H', bytes_str([packet[18], packet[19]]))[0]
-    tcp = {'header_parse':tcp_header_parse}
-    tcp['header'] = packet[0:20]
-    tcp['body'] = packet[20:]
-    tcp['raw'] = packet
+    tcp = {HEADER_PARSE_KEY:tcp_header_parse}
+    tcp[HEADER_KEY] = packet[0:20]
+    tcp[BODY_KEY] = packet[20:]
+    tcp[RAW_KEY] = packet
     return tcp;   
     
        
