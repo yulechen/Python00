@@ -35,7 +35,7 @@ TCP_HEADER_DESC = (
 HEADER_KEY = 'header'
 BODY_KEY = 'body'
 RAW_KEY = 'raw'
-HEADER_PARSE_KEY = 'header-parse'
+HEADER_PARSE_KEY = 'header_parse'
 
 def show_hex_raw(data):
         hex_str = ''
